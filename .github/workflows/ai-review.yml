@@ -1,0 +1,71 @@
+# AI first-pass review on every pull request, using Claude Code GitHub Actions.
+#
+# Setup (once, by the lead):
+#   Option A: run `/install-github-app` inside Claude Code and follow the prompts.
+#   Option B: install the Claude GitHub app at the organization level and add
+#             ANTHROPIC_API_KEY as an organization secret (an API key is the
+#             right choice for a shared secret; a personal OAuth token is not).
+#
+# Check the action's current inputs against https://code.claude.com/docs/en/github-actions
+# before the first run. The inputs below match the v1 action as documented in
+# September 2026; the action evolves.
+#
+# Cost levers: --max-turns, the workflow timeout, and the concurrency group.
+# Anthropic's own Code Review product (Team and Enterprise plans) is the
+# managed alternative to this workflow; it reads a REVIEW.md for tuning and
+# posts findings tagged Important, Nit and Pre-existing. If the team has it,
+# use it and delete this file.
+
+name: AI review
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: read
+  id-token: write
+
+concurrency:
+  group: ai-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_args: "--max-turns 25"
+          prompt: |
+            Review this pull request as the first pass before a human reviewer.
+            Read AGENTS.md, docs/constitution.md, docs/review-policy.md and the
+            spec folder the PR body names under docs/specs/. Then read the diff.
+
+            Report only:
+            1. Important: the change does not do what the PR's Verification
+               section claims, or the evidence is missing.
+            2. Important: a cited requirement has no test that would fail
+               without this change.
+            3. Important: a contract (contracts/, DTOs, queue messages, shared
+               field names) changed without both guard tests changing.
+            4. Important: anything named after a test case or a fixture value.
+            5. Important: a constitution non-negotiable is broken, or a
+               deliberate deviation in docs/design.md section 7 is "fixed".
+            6. Important: secrets, unhandled null paths, swallowed exceptions,
+               a schema change without a migration.
+            7. Nit: at most three, only where the fix is one line.
+
+            Post findings as inline comments tagged [Important] or [Nit] with
+            file and line. Do not comment on style the linter covers. Do not
+            summarize the diff. If there is nothing Important, post one
+            top-level comment saying so.

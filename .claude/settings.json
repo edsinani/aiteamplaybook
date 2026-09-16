@@ -1,0 +1,101 @@
+{
+  "$comment": "Shared team settings, committed. Precedence: managed > CLI --settings > settings.local.json > this file > ~/.claude/settings.json. Allow rules and hooks take effect after each developer trusts the folder; deny rules apply regardless. Adjust the allow list to the project's real commands. Do not remove deny rules without a note in docs/governance.md.",
+
+  "permissions": {
+    "allow": [
+      "Bash(dotnet build:*)",
+      "Bash(dotnet test:*)",
+      "Bash(dotnet ef migrations add:*)",
+      "Bash(npm run:*)",
+      "Bash(npm test:*)",
+      "Bash(npx vue-tsc:*)",
+      "Bash(pytest:*)",
+      "Bash(python -m pytest:*)",
+      "Bash(ruff:*)",
+      "Bash(docker compose up:*)",
+      "Bash(docker compose logs:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git branch:*)",
+      "Bash(git worktree list:*)",
+      "Bash(gh issue view:*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh pr diff:*)"
+    ],
+    "ask": [
+      "Bash(git push:*)",
+      "Bash(git commit:*)",
+      "Bash(gh pr create:*)",
+      "Bash(dotnet ef database update:*)",
+      "Bash(docker compose down:*)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./**/.env)",
+      "Read(./secrets/**)",
+      "Read(./**/*.pem)",
+      "Read(./**/*.pfx)",
+      "Read(~/.ssh/**)",
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(rm -rf:*)",
+      "Bash(az deployment:*)",
+      "Bash(az containerapp update:*)",
+      "Bash(kubectl apply:*)",
+      "Bash(terraform apply:*)"
+    ]
+  },
+
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-destructive.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/lint-on-edit.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/stop-gate.sh",
+            "timeout": 600
+          }
+        ]
+      }
+    ]
+  },
+
+  "sandbox": {
+    "enabled": true,
+    "network": {
+      "allowedDomains": [
+        "api.nuget.org",
+        "registry.npmjs.org",
+        "pypi.org",
+        "files.pythonhosted.org",
+        "github.com",
+        "api.github.com"
+      ]
+    }
+  }
+}

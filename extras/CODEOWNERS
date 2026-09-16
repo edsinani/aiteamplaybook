@@ -1,0 +1,11 @@
+# The playbook files. No change to these merges without the lead.
+# Copy to .github/CODEOWNERS and switch on "require review from code owners"
+# in the branch protection rule. Replace @lead with a handle or a team.
+/AGENTS.md                   @lead
+/CLAUDE.md                   @lead
+/.claude/                    @lead
+/.github/                    @lead
+/docs/constitution.md        @lead
+/docs/review-policy.md       @lead
+/docs/definition-of-done.md  @lead
+/contracts/                  @lead

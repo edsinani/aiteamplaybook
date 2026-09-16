@@ -1,0 +1,106 @@
+# The gates. Every PR runs these. Branch protection requires the "gates" job.
+# Replace the build-and-test steps with the project's real commands; keep the
+# pr-size and template checks as they are.
+
+name: CI
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  pr-size:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Count changed lines, excluding generated files
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+          LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+        run: |
+          set -euo pipefail
+          # Generated files do not count. Add the project's own patterns.
+          EXCLUDE=':(exclude)**/package-lock.json :(exclude)**/*.lock :(exclude)**/__snapshots__/** :(exclude)contracts/*.json :(exclude)**/Migrations/*.Designer.cs'
+          LINES=$(git diff --numstat "$BASE" "$HEAD" -- . $EXCLUDE | awk '{a+=$1; d+=$2} END {print a+d+0}')
+          echo "Changed lines (excluding generated): $LINES"
+          LIMIT=400
+          if [ "$LINES" -gt "$LIMIT" ]; then
+            if echo ",$LABELS," | grep -q ",size/xl-override,"; then
+              echo "Over $LIMIT but size/xl-override is set. Reviewer: check the override reason in the PR body."
+            else
+              echo "::error::PR has $LINES changed lines, limit is $LIMIT. Split it, or add the size/xl-override label with a reason in the PR body. See docs/review-policy.md."
+              exit 1
+            fi
+          fi
+
+  pr-template:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require the verification section to be filled
+        env:
+          BODY: ${{ github.event.pull_request.body }}
+        run: |
+          set -euo pipefail
+          for field in "Tracker: #" "Risk tier:" "Contract:" "## Verification"; do
+            if ! printf '%s' "$BODY" | grep -q "$field"; then
+              echo "::error::PR body is missing '$field'. Use the template."
+              exit 1
+            fi
+          done
+          if printf '%s' "$BODY" | grep -q '<paste the check output>'; then
+            echo "::error::PR body still has the placeholder in the Verification section. Paste the real check output."
+            exit 1
+          fi
+          if printf '%s' "$BODY" | grep -Eq 'Risk tier: *(Low \| Standard \| High|$)'; then
+            echo "::error::Pick one risk tier."
+            exit 1
+          fi
+
+  gates:
+    runs-on: ubuntu-latest
+    needs: []
+    steps:
+      - uses: actions/checkout@v4
+
+      # TODO: replace with the project's real steps. Examples for a three-service repo:
+      #
+      # - uses: actions/setup-dotnet@v4
+      #   with: { dotnet-version: '10.0.x' }
+      # - run: dotnet restore --locked-mode
+      # - run: dotnet build --no-restore --configuration Release
+      # - run: dotnet test --no-build --configuration Release
+      #
+      # - uses: actions/setup-python@v5
+      #   with: { python-version: '3.12' }
+      # - run: pip install -r worker/requirements.txt
+      # - run: cd worker && pytest -q
+      # - run: cd worker && python scripts/generate_field_manifest.py --check   # contract is current
+      #
+      # - uses: actions/setup-node@v4
+      #   with: { node-version: '22' }
+      # - run: cd frontend && npm ci && npm run type-check && npm test -- --run && npm run build
+
+      - name: Placeholder
+        run: echo "Replace this job's steps with the project's build and test commands."
+
+  no-em-dashes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Team convention on docs
+        run: |
+          if grep -rn $'\xe2\x80\x94' --include='*.md' docs AGENTS.md CLAUDE.md README.md 2>/dev/null; then
+            echo "::error::Em dash found. Use a hyphen or restructure the sentence."
+            exit 1
+          fi
