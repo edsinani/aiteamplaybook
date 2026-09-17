@@ -5,6 +5,10 @@
 #             app, then choose "Skip for now" at the workflow prompt, so this
 #             file stays the only review workflow, and add the secret yourself:
 #             gh secret set ANTHROPIC_API_KEY --repo <owner>/<repo>
+#   Solo lead on a Pro or Max plan: run `claude setup-token`, store the token
+#             as CLAUDE_CODE_OAUTH_TOKEN, and change the credential line below
+#             to claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}.
+#             Reviews then count against that subscription's usage limits.
 #   Option B: install the Claude GitHub app at the organization level and add
 #             ANTHROPIC_API_KEY as an organization secret (an API key is the
 #             right choice for a shared secret; a personal OAuth token is not).
