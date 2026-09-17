@@ -1,7 +1,10 @@
 # AI first-pass review on every pull request, using Claude Code GitHub Actions.
 #
 # Setup (once, by the lead):
-#   Option A: run `/install-github-app` inside Claude Code and follow the prompts.
+#   Option A: run `/install-github-app` inside Claude Code. Let it install the
+#             app, then choose "Skip for now" at the workflow prompt, so this
+#             file stays the only review workflow, and add the secret yourself:
+#             gh secret set ANTHROPIC_API_KEY --repo <owner>/<repo>
 #   Option B: install the Claude GitHub app at the organization level and add
 #             ANTHROPIC_API_KEY as an organization secret (an API key is the
 #             right choice for a shared secret; a personal OAuth token is not).
@@ -20,7 +23,7 @@ name: AI review
 
 on:
   pull_request:
-    types: [opened, synchronize, ready_for_review]
+    types: [opened, synchronize, ready_for_review, reopened]
 
 permissions:
   contents: read
@@ -45,7 +48,10 @@ jobs:
       - uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          claude_args: "--max-turns 25"
+          # In automation mode the action grants no tools until the workflow
+          # names them. Without the inline-comment tool the findings only reach
+          # the run log; without git the reviewer cannot read the diff.
+          claude_args: '--max-turns 25 --allowedTools "Bash(git diff:*),Bash(git log:*),mcp__github_inline_comment__create_inline_comment"'
           prompt: |
             Review this pull request as the first pass before a human reviewer.
             Read AGENTS.md, docs/constitution.md, docs/review-policy.md and the
