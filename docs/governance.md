@@ -32,6 +32,13 @@ Enforced by `.claude/settings.json` and hooks, not by asking nicely.
 
 Local overrides in `.claude/settings.local.json` may add allow rules for a developer's own convenience. They may not remove deny rules. On Enterprise, `allowManagedPermissionRulesOnly` makes that impossible rather than merely forbidden.
 
+## Identity
+
+The agent does not run as the developer. Its git identity is a fine-grained token or a GitHub App installation scoped to this repository, with contents and pull requests permission only, stored where the agent runs and never in a shell profile. The agent holds no cloud credentials; deploys run from CI on merge. Where the repository holds customer data, sessions run in a container or a cloud environment rather than on the laptop, with no `~/.ssh` or cloud credential files mounted. See `extras/no-entitlements.md`.
+
+Agent identity: <token or app name, and where it lives>
+Sessions run: <laptop | dev container | Codespaces | Claude Code on the web>
+
 ## Sandboxing
 
 Agent sessions run with the sandbox enabled and network limited to the package registries and the tracker. The allowed domains are in `.claude/settings.json`. Anthropic's own engineers work on egress-allowlisted machines; a small team gets most of the benefit from the built-in sandbox setting.
@@ -42,7 +49,13 @@ Expected: Anthropic reports about 13 dollars per developer per active day on ave
 
 Tracking: on Team and Enterprise plans, spend limits are set per organization, group or member in the admin console, and the analytics page shows accepted lines and PRs per developer. For API billing, the Claude Code workspace in the console has its own spend limit. Per-user near-real-time cost needs the OpenTelemetry export; it is a one-line setting and worth turning on from day one.
 
+Cap: a hard monthly limit per developer, set in the admin console (Team and Enterprise) or on the Claude Code workspace (API billing), so the tool stops rather than a reminder being sent. Raising it is a request to the owner with a reason. Cap: <e.g. 250 dollars a month>. Request path: <who, how>.
+
 Threshold: a day over <e.g. 100 dollars> for one developer is a conversation, not a problem. Most overruns are a session that looped, and the fix is in the task, not the person.
+
+## Oversight
+
+`CLAUDE_CODE_ENABLE_TELEMETRY=1` with the OpenTelemetry exporter pointed at the team's collector, so cost and tool activity per developer arrive in near real time. Collector: <where>.
 
 ## Provenance
 

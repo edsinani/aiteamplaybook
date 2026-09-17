@@ -28,3 +28,9 @@ changes nothing.
 What this still does not stop: a developer building a change by hand and
 opening an ordinary pull request. That is fine. The template still asks how it
 was built, the same checks run, and the same reviewer reads it.
+
+## Also here
+
+`no-entitlements.md`: the seven-step checklist for giving the agent a scoped
+identity, keeping it away from secrets and internal systems, capping spend and
+turning on telemetry. Optional, and independent of the four items above.
