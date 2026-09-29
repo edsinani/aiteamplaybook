@@ -1,6 +1,5 @@
 {
-  "$comment": "Shared team settings, committed. Precedence: managed > CLI --settings > settings.local.json > this file > ~/.claude/settings.json. Allow rules and hooks take effect after each developer trusts the folder; deny rules apply regardless. Adjust the allow list to the project's real commands. Do not remove deny rules without a note in docs/governance.md.",
-
+  "$comment": "Shared team settings, committed. Precedence: managed > CLI --settings > settings.local.json > this file > ~/.claude/settings.json. Allow rules and hooks take effect after each developer trusts the folder; deny rules apply regardless. Adjust the allow list to the project's real commands. Do not remove deny rules without a note in docs/governance.md. Read deny rules cover the agent's Read tool only; sandbox.filesystem.denyRead covers Bash commands in the sandbox. Keep the two lists in step.",
   "permissions": {
     "allow": [
       "Bash(dotnet build:*)",
@@ -48,7 +47,6 @@
       "Bash(terraform apply:*)"
     ]
   },
-
   "hooks": {
     "PreToolUse": [
       {
@@ -84,7 +82,6 @@
       }
     ]
   },
-
   "sandbox": {
     "enabled": true,
     "network": {
@@ -95,6 +92,13 @@
         "files.pythonhosted.org",
         "github.com",
         "api.github.com"
+      ]
+    },
+    "filesystem": {
+      "denyRead": [
+        "./.env",
+        "./secrets",
+        "~/.ssh"
       ]
     }
   }

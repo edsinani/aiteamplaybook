@@ -12,8 +12,8 @@ changes nothing.
 1. `CODEOWNERS`: copy to `.github/CODEOWNERS`, replace `@lead`, and switch on
    "require review from code owners" in the branch protection rule. No change
    to a rule file merges without the lead.
-2. `playbook-guard.yml`: paste the job into `.github/workflows/ci.yml`. It fails
-   when a rule file changed in a pull request without the `playbook-change`
+2. `playbook-guard.yml`: paste the job into `.github/workflows/pr-checks.yml`,
+   which re-runs when labels change. It fails when a rule file changed in a pull request without the `playbook-change`
    label. Create the label. Required checks are named in branch protection, so
    a check that never reports blocks the merge; deleting a job does not help.
 3. Two policy lines. In `docs/review-policy.md`, add to the High tier: "any

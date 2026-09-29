@@ -54,12 +54,14 @@ jobs:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           # In automation mode the action grants no tools until the workflow
           # names them. Without the inline-comment tool the findings only reach
-          # the run log; without git the reviewer cannot read the diff.
-          claude_args: '--max-turns 25 --allowedTools "Bash(git diff:*),Bash(git log:*),mcp__github_inline_comment__create_inline_comment"'
+          # the run log; without git the reviewer cannot read the diff; without
+          # gh pr comment it cannot post the "nothing Important" summary.
+          claude_args: '--max-turns 25 --allowedTools "Bash(git diff:*),Bash(git log:*),mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*)"'
           prompt: |
             Review this pull request as the first pass before a human reviewer.
-            Read AGENTS.md, docs/constitution.md, docs/review-policy.md and the
-            spec folder the PR body names under docs/specs/. Then read the diff.
+            Read AGENTS.md, docs/constitution.md, docs/review-policy.md,
+            section 7 of docs/design.md and the spec folder the PR body names
+            under docs/specs/. Then read the diff.
 
             Report only:
             1. Important: the change does not do what the PR's Verification
@@ -74,8 +76,10 @@ jobs:
             6. Important: secrets, unhandled null paths, swallowed exceptions,
                a schema change without a migration.
             7. Nit: at most three, only where the fix is one line.
+            8. Pre-existing: an Important-level problem in lines this PR did
+               not change. Not blocking. At most one.
 
-            Post findings as inline comments tagged [Important] or [Nit] with
-            file and line. Do not comment on style the linter covers. Do not
+            Post findings as inline comments tagged [Important], [Nit] or
+            [Pre-existing] with file and line. Do not comment on style the linter covers. Do not
             summarize the diff. If there is nothing Important, post one
             top-level comment saying so.
