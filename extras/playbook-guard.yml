@@ -1,7 +1,7 @@
-# Paste this job into .github/workflows/ci.yml and add it to the required
-# checks in branch protection. It fails when a rule file changed in a pull
-# request that does not carry the playbook-change label. The label is a flag
-# for the reviewer; the lock is CODEOWNERS, which makes the lead approve the
+# Paste this job into .github/workflows/pr-checks.yml, which re-runs when a
+# label is added, and add it to the required checks in branch protection. It
+# fails when a rule file changed in a pull request that does not carry the
+# playbook-change label. The label is a flag for the reviewer; the lock is CODEOWNERS, which makes the lead approve the
 # change either way.
 
   playbook-guard:
@@ -17,7 +17,7 @@
           LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
         run: |
           set -euo pipefail
-          CHANGED=$(git diff --name-only "$BASE" "$HEAD" -- AGENTS.md CLAUDE.md .claude .github \
+          CHANGED=$(git diff --name-only "$BASE...$HEAD" -- AGENTS.md CLAUDE.md .claude .github \
             docs/constitution.md docs/review-policy.md docs/definition-of-done.md contracts)
           if [ -n "$CHANGED" ] && ! echo ",$LABELS," | grep -q ",playbook-change,"; then
             echo "::error::Rule files changed without the playbook-change label:"

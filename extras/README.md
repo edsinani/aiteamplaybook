@@ -12,9 +12,9 @@ changes nothing.
 1. `CODEOWNERS`: copy to `.github/CODEOWNERS`, replace `@lead`, and switch on
    "require review from code owners" in the branch protection rule. No change
    to a rule file merges without the lead.
-2. `playbook-guard.yml`: paste the job into `.github/workflows/ci.yml`. It fails
-   when a rule file changed in a pull request without the `playbook-change`
-   label. Create the label. Required checks are named in branch protection, so
+2. `playbook-guard.yml`: paste the job into `.github/workflows/pr-checks.yml`,
+   which re-runs when labels change. It fails when a rule file changed in a
+   pull request without the `playbook-change` label. Create the label. Required checks are named in branch protection, so
    a check that never reports blocks the merge; deleting a job does not help.
 3. Two policy lines. In `docs/review-policy.md`, add to the High tier: "any
    change to the playbook files". In `docs/definition-of-done.md`, add: "a
@@ -28,3 +28,9 @@ changes nothing.
 What this still does not stop: a developer building a change by hand and
 opening an ordinary pull request. That is fine. The template still asks how it
 was built, the same checks run, and the same reviewer reads it.
+
+## Also here
+
+`no-entitlements.md`: the seven-step checklist for giving the agent a scoped
+identity, keeping it away from secrets and internal systems, capping spend and
+turning on telemetry. Optional, and independent of the four items above.

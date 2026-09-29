@@ -23,7 +23,7 @@ Rules for juniors and for anyone new to the stack. The lead decides who they app
 
 Manual first. For the first <two> weeks in a new area of the codebase, the developer implements one task in that area without an agent, then reviews an agent's implementation of the next one against their own. Comparison is the fastest teacher.
 
-Explain before merge. On Standard and High tasks, the author must be able to explain every line of the diff to the reviewer without the agent. If they cannot, the PR waits. This is the single rule with the highest effect on comprehension, and it costs nothing when the author already understands the change.
+Explain before merge. On Standard and High tasks, the author must be able to explain every line of the diff to the reviewer without the agent. If they cannot, the PR waits. Of these rules it is the one we would keep if we could keep only one, and it costs nothing when the author already understands the change.
 
 Debug by hand first. When a test fails, the developer forms a hypothesis and checks it before asking the agent. Fifteen minutes, then the agent. Debugging is where the study found the largest gap.
 
@@ -35,11 +35,11 @@ One review a week without the AI first pass. Each developer reviews one PR a wee
 
 For a team adopting the playbook together, in order.
 
-Week 1: the lead installs the playbook and runs one feature through it alone. Fix the templates.
+Week 1: the lead backfills the measurement baseline, installs the playbook and runs one feature through it alone. Fix the templates.
 
 Week 2: one developer joins, on a Low-tier task, then a Standard one. The lead reviews every step. Fix the templates again.
 
-Week 3 and 4: the rest of the team, one feature each, all through the full flow. The weekly checkpoint starts. The measurement file has three weeks of baseline by now.
+Week 3 and 4: the rest of the team, one feature each, all through the full flow. The weekly checkpoint starts. The measurement file has the backfilled baseline and three weeks under the playbook to compare it with.
 
 Milestone 2: review the measurement numbers. Decide on Low-tier auto-approval. Retire any rule nobody has needed.
 

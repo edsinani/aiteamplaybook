@@ -1,0 +1,93 @@
+# Checks on the pull request itself: size, template, provenance label.
+# Separate from ci.yml because these must re-run when the body is edited or a
+# label is added, and the build should not. Branch protection requires the
+# "pr-size" and "pr-template" jobs.
+
+name: PR checks
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, edited, synchronize, reopened, ready_for_review, labeled, unlabeled]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: pr-checks-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  pr-size:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Count changed lines, excluding generated files
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+          LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+        run: |
+          set -euo pipefail
+          # Generated files do not count. Add the project's own patterns.
+          EXCLUDE=(
+            ':(exclude,glob)**/package-lock.json'
+            ':(exclude,glob)**/*.lock'
+            ':(exclude,glob)**/__snapshots__/**'
+            ':(exclude,glob)contracts/*.json'
+            ':(exclude,glob)**/Migrations/*.Designer.cs'
+            ':(exclude,glob)**/Migrations/*ModelSnapshot.cs'
+          )
+          # Three dots: only this branch's changes since it left the base.
+          LINES=$(git diff --numstat "$BASE...$HEAD" -- . "${EXCLUDE[@]}" | awk '{a+=$1; d+=$2} END {print a+d+0}')
+          echo "Changed lines (excluding generated): $LINES"
+          LIMIT=400
+          if [ "$LINES" -gt "$LIMIT" ]; then
+            if echo ",$LABELS," | grep -q ",size/xl-override,"; then
+              echo "Over $LIMIT but size/xl-override is set. Reviewer: check the override reason in the PR body."
+            else
+              echo "::error::PR has $LINES changed lines, limit is $LIMIT. Split it, or add the size/xl-override label with a reason in the PR body. See docs/review-policy.md."
+              exit 1
+            fi
+          fi
+
+  pr-template:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require the template to be filled in
+        env:
+          BODY: ${{ github.event.pull_request.body }}
+        run: |
+          set -euo pipefail
+          body="$(printf '%s' "$BODY" | tr -d '\r')"
+          fail() { echo "::error::$1 See .github/PULL_REQUEST_TEMPLATE.md."; exit 1; }
+          has() { printf '%s\n' "$body" | grep -Eq "$1"; }
+
+          has '^## Verification'                  || fail "PR body is missing the Verification section."
+          has '^Tracker: *#?[A-Za-z0-9]'          || fail "Fill in the Tracker line with the task's id."
+          has '^Satisfies: *Req *$'               && fail "Fill in the Satisfies line with requirement numbers."
+          has '^Risk tier: *(Low|Standard|High) *$' || fail "Pick one risk tier: Low, Standard or High."
+          has '^Contract: *[^[:space:]]'          || fail "Fill in the Contract line, or write 'none'."
+          has '^Contract: *none \| <'             && fail "Pick one on the Contract line."
+          has '^Tool: *[^[:space:]]'              || fail "Fill in the Tool line."
+          has '^Tool: .*\|'                       && fail "Pick one tool on the Tool line."
+          has '<paste the check output>'          && fail "Paste the real check output in the Verification section."
+          echo "Template filled in."
+
+  provenance-label:
+    runs-on: ubuntu-latest
+    needs: pr-template
+    steps:
+      - name: Label PRs built with Claude Code
+        env:
+          BODY: ${{ github.event.pull_request.body }}
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.html_url }}
+        run: |
+          # The label feeds docs/measurement.md. Create it once in the repo.
+          if printf '%s' "$BODY" | tr -d '\r' | grep -Eq '^Tool: *Claude Code *$'; then
+            gh pr edit "$PR" --add-label claude-code-assisted
+          fi

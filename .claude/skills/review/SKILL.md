@@ -11,4 +11,4 @@ description: Pre-PR self review. Runs the reviewer agent with fresh context on t
 4. For each Important finding: fix it, or write the one-line reason it stands. Do not silently ignore any.
 5. Draft the PR description from `.github/PULL_REQUEST_TEMPLATE.md`. Every line filled. The Verification section carries actual evidence: the test names that cover each cited requirement, the command and its output, or the screenshot path.
 6. Check the docs line of the definition of done: did `AGENTS.md`, `docs/design.md` or the feature `design.md` status log need a change? If yes and it is not in the diff, add it.
-7. Give the developer the exact git commands to commit and push, and the `gh pr create` command with the drafted body. Do not run them.
+7. Give the developer the exact git commands to commit and push, and the `gh pr create` command with the drafted body. Run them only if the developer asks.

@@ -23,18 +23,29 @@ Using a tool not on this list to write code for the repo is a conversation with 
 
 Enforced by `.claude/settings.json` and hooks, not by asking nicely.
 
-- Read `.env`, `secrets/`, key files or anything matching the deny list.
-- Push to any remote, force-push, or rewrite history. `git push` is on the ask list, so a human confirms each time.
+- Read `.env`, `secrets/`, key files or anything matching the deny list. The `Read` deny rules cover the agent's file tool; `sandbox.filesystem.denyRead` covers shell commands such as `cat`. Keep the two lists in step.
+- Commit or push without a human confirming. `git commit` and `git push` are on the ask list.
+- Force-push or rewrite history. Denied in settings, and `block-destructive.sh` catches the variants (`--force-with-lease`, `+refspec`, `reset --hard`, `clean -f`).
 - Run `rm -rf`, drop databases, or delete migrations. The `block-destructive.sh` hook exits 2 on these.
-- Deploy. Deployment runs from CI on merge, never from a developer's agent session.
-- Change anything under `contracts/` inside a task that is not a contract task.
-- Declare a task done without the check passing. The `stop-gate.sh` hook blocks it.
+- Deploy. The common deploy commands are denied in settings; deployment runs from CI on merge, never from a developer's agent session. Add the project's own deploy commands to the deny list.
+- Declare a task done without the check passing. The `stop-gate.sh` hook blocks the agent from stopping up to three times, then lets it stop with a message that the task is not done. CI runs the check again on the PR.
+
+Checked at review, not blocked in the session:
+
+- Changing anything under `contracts/` inside a task that is not a contract task. The reviewer agent, the AI first pass and the High tier all look for it. A team that wants it locked adds `extras/CODEOWNERS`.
 
 Local overrides in `.claude/settings.local.json` may add allow rules for a developer's own convenience. They may not remove deny rules. On Enterprise, `allowManagedPermissionRulesOnly` makes that impossible rather than merely forbidden.
 
+## Identity
+
+The agent does not run as the developer. Its git identity is a fine-grained token or a GitHub App installation scoped to this repository, with contents and pull requests permission only, stored where the agent runs and never in a shell profile. The agent holds no cloud credentials; deploys run from CI on merge. Where the repository holds customer data, sessions run in a container or a cloud environment rather than on the laptop, with no `~/.ssh` or cloud credential files mounted. See `extras/no-entitlements.md`.
+
+Agent identity: <token or app name, and where it lives>
+Sessions run: <laptop | dev container | Codespaces | Claude Code on the web>
+
 ## Sandboxing
 
-Agent sessions run with the sandbox enabled and network limited to the package registries and the tracker. The allowed domains are in `.claude/settings.json`. Anthropic's own engineers work on egress-allowlisted machines; a small team gets most of the benefit from the built-in sandbox setting.
+Agent sessions run with the sandbox enabled and network limited to the package registries and GitHub. Add the tracker's domain if the agent reads issues from somewhere else. The allowed domains are in `.claude/settings.json`. Anthropic's own engineers work on egress-allowlisted machines; a small team gets most of the benefit from the built-in sandbox setting.
 
 ## Spend
 
@@ -42,11 +53,17 @@ Expected: Anthropic reports about 13 dollars per developer per active day on ave
 
 Tracking: on Team and Enterprise plans, spend limits are set per organization, group or member in the admin console, and the analytics page shows accepted lines and PRs per developer. For API billing, the Claude Code workspace in the console has its own spend limit. Per-user near-real-time cost needs the OpenTelemetry export; it is a one-line setting and worth turning on from day one.
 
+Cap: a hard monthly limit per developer, set in the admin console (Team and Enterprise) or on the Claude Code workspace (API billing), so the tool stops rather than a reminder being sent. Raising it is a request to the owner with a reason. Cap: <e.g. 250 dollars a month>. Request path: <who, how>.
+
 Threshold: a day over <e.g. 100 dollars> for one developer is a conversation, not a problem. Most overruns are a session that looped, and the fix is in the task, not the person.
+
+## Oversight
+
+`CLAUDE_CODE_ENABLE_TELEMETRY=1` with the OpenTelemetry exporter pointed at the team's collector, so cost and tool activity per developer arrive in near real time. Collector: <where>.
 
 ## Provenance
 
-Every PR says which tool was used and what the agent was asked to do, in the PR template. Merged PRs from Claude Code get the `claude-code-assisted` label so the analytics page counts them. This is not surveillance. It is what makes the measurement file possible and what lets a reviewer read a diff with the right question in mind.
+Every PR says which tool was used and what the agent was asked to do, in the PR template. PRs whose template says `Tool: Claude Code` get the `claude-code-assisted` label from the `provenance-label` job in `.github/workflows/pr-checks.yml`, so the analytics page and `docs/measurement.md` can count them. Create the label once. This is not surveillance. It is what makes the measurement file possible and what lets a reviewer read a diff with the right question in mind.
 
 ## Data
 

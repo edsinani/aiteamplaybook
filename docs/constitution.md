@@ -30,14 +30,14 @@ Rules the agent must never break and the reviewer must always check.
 3. Every schema change ships as a migration in the same PR.
 4. Tests run in CI on every PR. A red check blocks merge.
 5. One task per branch, one branch per PR, under 400 changed lines unless labelled `size/xl-override` with a reason.
-6. The agent does not push, deploy or run destructive commands. Hooks enforce this.
+6. The agent does not deploy or run destructive commands, and commits or pushes only with the developer's confirmation each time. `.claude/settings.json` and the `block-destructive.sh` hook enforce this.
 7. User-facing work has an approved walkable demo before code. See `docs/prototypes/README.md`.
 
 ## Conventions
 
 Branch names: `task/<tracker-id>-<short-slug>`.
 
-Commit messages: Conventional Commits (`feat:`, `fix:`, `chore:`, `docs:`, `test:`, `refactor:`), subject under 72 characters, body optional. Agent-written bodies are trimmed to 20 lines by the pre-commit hook.
+Commit messages: Conventional Commits (`feat:`, `fix:`, `chore:`, `docs:`, `test:`, `refactor:`), subject under 72 characters, body optional and under 20 lines.
 
 Language: American English in code and docs. Hyphens, never em dashes.
 

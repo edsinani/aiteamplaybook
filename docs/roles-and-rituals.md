@@ -4,7 +4,7 @@ For a team of three to six developers and one lead. Nobody gets a new title. Wha
 
 ## The lead
 
-Owns the constitution, the system design and ADR approval. Owns agent configuration (see `docs/governance.md`). Approves each feature at the three gates: requirements, design, tasks. Reviews every High-tier PR. Runs the weekly checkpoint and reads the measurement file.
+Owns the constitution, the system design and ADR approval. Owns agent configuration (see `docs/governance.md`). Approves each feature at the three gates: requirements, design, tasks (the tasks gate may be delegated, see Rituals). Reviews every High-tier PR. Runs the weekly checkpoint and reads the measurement file.
 
 What the lead stops doing: writing most of the code, and writing every story. The lead's leverage moved from the keyboard to the design document and the gates.
 
@@ -26,7 +26,7 @@ Keep the ones that make a decision or catch a drift. Drop the rest. Agents make 
 
 Milestone planning, every two to four weeks, one hour. The lead presents the features for the milestone. Each developer takes one and commits to having requirements approved within two days. Contract-changing tasks are identified and sequenced first.
 
-Gate reviews, as needed, fifteen minutes each. Developer and lead, on the requirements, then the design (with the walkable demo if user-facing), then the tasks. Async is fine for requirements. The design walkthrough is better live.
+Gate reviews, as needed, fifteen minutes each. Developer and lead, on the requirements, then the design (with the walkable demo if user-facing), then the tasks. Async is fine for requirements. The design walkthrough is better live. The lead answers a gate within one working day; a gate that waits longer than that is the lead's blocker to raise at the checkpoint. With five or six developers, the lead may delegate the tasks gate to the reviewer of record for the milestone, keeping requirements and design.
 
 Weekly checkpoint, Friday, twenty minutes, whole team. Four questions, taken from a solo developer's tracker and still the right four:
 
@@ -41,4 +41,4 @@ Milestone retro, thirty minutes. What the AI reviewer flagged that humans missed
 
 ## What is deliberately absent
 
-A dedicated "prompt engineer" or "AI champion" role. No company with a published, measured setup has one. What they have is a platform or enablement group at scale, and on a small team that group is the lead's configuration ownership plus this document.
+A dedicated "prompt engineer" or "AI champion" role. The published, measured setups we draw on do not rely on one. What they have is a platform or enablement group at scale, and on a small team that group is the lead's configuration ownership plus this document.

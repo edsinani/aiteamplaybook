@@ -18,7 +18,7 @@ Before code
 
 Building
 
-6. **One task, one worktree, one pull request.** Under 400 changed lines, enforced by CI. `.github/workflows/ci.yml`
+6. **One task, one worktree, one pull request.** Under 400 changed lines, enforced by CI. `.github/workflows/pr-checks.yml`
 7. **Every contract has a file and two tests.** Where two components must agree, a test on each side catches a silent break. `docs/contracts.md`
 
 Reviewing
@@ -61,7 +61,8 @@ docs/
   skills/                    /spec, /tasks, /review
 .github/
   PULL_REQUEST_TEMPLATE.md
-  workflows/ci.yml           pr-size, pr-template, gates, no-em-dashes
+  workflows/ci.yml           gates (build and test), no-em-dashes
+  workflows/pr-checks.yml    pr-size, pr-template, provenance label
   workflows/ai-review.yml    AI first-pass review on every pull request
   copilot-instructions.md    points Copilot at AGENTS.md
 alternatives/                the same setup in Cursor, Copilot, Kiro, Codex
@@ -72,16 +73,16 @@ extras/                      optional: CODEOWNERS and a guard job that lock the 
 
 Ten steps, in order, each with a check. The full procedure with the exact commands is the [install checklist](https://intelligentrics.com/playbook/install/). In short:
 
-1. Copy this folder's contents into the repository root, on a branch. Keep your own `README.md`. Add `.claude/worktrees/`, `.claude/settings.local.json` and `CLAUDE.local.md` to `.gitignore`.
-2. Fill in `docs/constitution.md`. It is the only document the lead must finish before anyone else starts.
-3. Fill in the `TODO` sections of `AGENTS.md`. Keep it under 200 lines.
-4. Review `.claude/settings.json`. Adjust the allow list to the project's real commands. Do not remove a deny rule without a reason in `docs/governance.md`.
-5. Make the hooks executable, `chmod +x .claude/hooks/*.sh`, and set the check command in `stop-gate.sh` to the project's real one.
+1. Take the baseline before anything changes: fill `docs/measurement-log.csv` with the last 8 to 12 weeks of the five numbers in `docs/measurement.md`. Four of the five come straight from the git host's history.
+2. Copy this folder's contents into the repository root, on a branch. Keep your own `README.md`. Merge `.gitignore` into yours rather than replacing it.
+3. Fill in `docs/constitution.md`. It is the only document the lead must finish before anyone else starts.
+4. Fill in the `TODO` sections of `AGENTS.md`, starting with the commands. Keep it under 200 lines.
+5. Review `.claude/settings.json`. Adjust the allow list to the project's real commands. Do not remove a deny rule without a reason in `docs/governance.md`. Make the hooks executable, `chmod +x .claude/hooks/*.sh`, and set `CHECK` in `stop-gate.sh` to the project's real check. Until it is set, the gate blocks with a message saying so.
 6. Set up the AI review: `/install-github-app` from Claude Code, or install the GitHub app and add `ANTHROPIC_API_KEY` as an organization secret. Check the action's current documentation before the first run.
-7. Protect the main branch: require the `gates`, `pr-size` and `pr-template` checks and one approving review. Create the `size/xl-override` label.
+7. Replace the steps of the `gates` job in `.github/workflows/ci.yml` with the project's build and test. It fails until you do. Then protect the main branch: require the `gates`, `pr-size` and `pr-template` checks and one approving review. Create the `size/xl-override` and `claude-code-assisted` labels.
 8. Write `docs/design.md` for the system as it exists today, replace the example ADR with your own first decision, and open the install pull request with the override label.
 9. Run one small feature through the whole process with one developer, the lead reviewing each gate. Fix the templates where they were awkward.
-10. Start `docs/measurement-log.csv` in the first week, before anything else changes.
+10. Add a row to `docs/measurement-log.csv` every Friday from here on.
 
 ## Working a task, step by step (Claude Code)
 
@@ -92,7 +93,7 @@ claude --worktree task-142-review-queue-api
 # then build the one task, run the check, /review, open the PR with the template
 ```
 
-The worktree lands in `.claude/worktrees/task-142-review-queue-api/` on its own branch. Permissions granted in a worktree are saved to the main checkout, so nobody re-approves the same command per task. When the PR is merged, delete the worktree.
+The worktree lands in `.claude/worktrees/task-142-review-queue-api/` on a branch named `worktree-task-142-review-queue-api`. Rename it to the team convention before the first commit: `git branch -m task/142-review-queue-api`. Permissions granted in a worktree are saved to the main checkout, so nobody re-approves the same command per task. When the PR is merged, delete the worktree.
 
 For other tools see `alternatives/`.
 

@@ -13,6 +13,9 @@ file="$(printf '%s' "$input" | python3 -c 'import json,sys; print(json.load(sys.
 
 [ -z "$file" ] || [ ! -f "$file" ] && exit 0
 
+# Set by Claude Code. Other tools running this script may not set it.
+project_dir="${CLAUDE_PROJECT_DIR:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)}"
+
 case "$file" in
   *.cs)
     command -v dotnet >/dev/null && dotnet format whitespace --include "$file" --no-restore >/dev/null 2>&1 || true
@@ -24,8 +27,8 @@ case "$file" in
     fi
     ;;
   *.ts|*.vue|*.js|*.tsx|*.jsx)
-    if [ -x "$CLAUDE_PROJECT_DIR/frontend/node_modules/.bin/prettier" ]; then
-      "$CLAUDE_PROJECT_DIR/frontend/node_modules/.bin/prettier" --write "$file" >/dev/null 2>&1 || true
+    if [ -x "$project_dir/frontend/node_modules/.bin/prettier" ]; then
+      "$project_dir/frontend/node_modules/.bin/prettier" --write "$file" >/dev/null 2>&1 || true
     fi
     ;;
   *.md)

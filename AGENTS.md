@@ -10,7 +10,7 @@ This is the one instruction file. Claude Code reads it through `CLAUDE.md`, Copi
 
 ## Commands
 
-<!-- TODO: the commands the agent cannot guess. Examples from a three-service repo: -->
+<!-- TODO: replace this block with the project's real commands. Until then these are examples from a three-service repo and do not exist here. -->
 
 ```
 # API (.NET)
@@ -35,14 +35,14 @@ docker compose up -d                 # database, storage emulator, queue
 - Commits: Conventional Commits. Subject under 72 characters. Keep bodies short.
 - PR: use the template. Fill in every line. The verification evidence is not optional.
 - Under 400 changed lines per PR. If the task will not fit, stop and propose the split.
-- Never commit, push, deploy or run destructive commands. Give the exact git commands for the developer to run.
+- Never deploy or run destructive commands. Commit or push only when the developer asks; each one waits for their confirmation. Otherwise give the exact git commands for the developer to run.
 
 ## How to work
 
 - Read the task's `Touches` and `Do not touch` lines before editing. Stay inside them. If the task needs a file outside them, stop and say so.
 - Look for a pattern that already exists before inventing one. Keep code consistent with its neighbours.
 - Strategic questions (architecture, scope, approach) are raised in prose, before code. Tactical decisions are made, not asked.
-- Before changing anything under `contracts/`, any DTO, queue message or field name another service reads: stop and say so. Contract changes are their own task.
+- Before changing anything under `contracts/`, or renaming, removing or retyping a field in a DTO, queue message or field name another service reads: stop and say so. Contract changes are their own task. Adding an optional field that consumers already ignore is not a contract change; see `docs/contracts.md`.
 - If you catch yourself adding a rule, mechanism or fix named after a specific failing test case, stop. Surface the pattern before writing the code.
 - If the same component needs a second redesign to keep working, stop. Surface it.
 - Comments only where the reason is not obvious from the code. No narration.
@@ -61,7 +61,7 @@ Before saying a task is complete: run the check, show the output, and confirm th
 - Contracts and their guard tests: `contracts/README.md`
 - Prototypes: `docs/prototypes/`
 
-## Code review rules
+## Code Review Rules
 
 <!-- Codex reads this section for its review. Keep it aligned with docs/review-policy.md. -->
 
