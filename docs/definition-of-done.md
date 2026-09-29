@@ -11,7 +11,7 @@ A task is done when every line below is true. The PR template repeats these as c
 5. Contracts touched are listed in the PR and both guard tests changed with them. If none, the PR says "Contract: none".
 6. Schema changes ship with their migration in the same PR.
 7. Nothing derived from a specific failing test case was added to make it pass. If the agent proposed a rule, mechanism or fix named after one test, it was surfaced to a human first.
-8. The docs that the change made wrong were fixed in the same PR: `AGENTS.md` if a command or convention changed, `docs/design.md` if the shape of the system changed, the feature `design.md` status log always.
+8. The docs that the change made wrong were fixed in the same PR: `AGENTS.md` if a command or convention changed, `docs/design.md` if the shape of the system changed, the feature `design.md` status log whenever a phase lands.
 9. The AI first-pass review ran and every Important finding was either fixed or answered in a comment.
 10. A human reviewed according to the risk tier.
 

@@ -1,13 +1,13 @@
 # Document display titles: design
 
-Requirements: `./requirements.md` (Approved 2026-02-18)
+Requirements: `./requirements.md` (Approved 2026-02-10)
 Prototype: not required. No new screen; an existing text slot changes content.
-Approved by: Lead, 2026-02-18
+Approved by: Lead, 2026-02-12
 Status: Implemented
 
 ## Approach
 
-Add a nullable `DisplayTitle` to the Document entity. Populate it in the worker's post-extraction step using a type-aware derivation. The frontend prefers it over the cleaned filename through one helper so no view needs to know the rule. No contract changes: the field is added to the existing document DTO, which the frontend already tolerates gaining fields.
+Add a nullable `DisplayTitle` to the Document entity. Populate it in the worker's post-extraction step using a type-aware derivation. The frontend prefers it over the cleaned filename through one helper so no view needs to know the rule. No contract changes: the field is an optional addition to the existing document DTO, which the frontend already ignores until it reads it (see the definition in `docs/contracts.md`).
 
 ## Decisions already taken
 
@@ -20,7 +20,7 @@ Add a nullable `DisplayTitle` to the Document entity. Populate it in the worker'
 ### Worker service
 
 - Change: `title_derivation.py` with one function per document type and a generic fallback; called from the pipeline after normalization.
-- Contract touched: none. Writes to an existing nullable column through the existing results writer.
+- Contract touched: none. Writes to the nullable column Phase 1 adds, through the existing results writer.
 - Tests: one per document type with a fixture extraction, one for the fallback, one for the failure path leaving the field empty (Req 1.1 to 1.5).
 
 ### API
@@ -42,8 +42,8 @@ Migration adding `DisplayTitle NVARCHAR(200) NULL` to `Documents`. No backfill (
 ## Phases
 
 1. Phase 1: entity, migration, DTO, search. Independent.
-2. Phase 2: worker derivation and tests. Independent of Phase 1 in code, but only observable after it.
-3. Phase 3: frontend helper. Depends on Phase 1 for the field to exist in the DTO.
+2. Phase 2: worker derivation and tests. Depends on Phase 1: the worker writes the column Phase 1 adds.
+3. Phase 3: frontend helper. Depends on Phase 1 for the field to exist in the DTO. Independent of Phase 2.
 
 ## Deliberate deviations from the prototype
 
@@ -59,4 +59,7 @@ Upload one invoice, one bill of lading and one scanned page with no structure, w
 
 ## Status log
 
-2026-02-18: Phases 1 to 3 implemented in #128. Fallback title from first heading produced noisy results on scanned pages; generic fallback restricted to text blocks over 12 characters.
+2026-02-16: Phase 1 implemented in #134.
+2026-02-18: Phase 2 implemented in #135. The generic fallback produced noisy titles on scanned pages ("Page 1", "Total"). Raised with the lead, who agreed to restrict it to text blocks over 12 characters.
+2026-02-18: Phase 3 implemented in #136.
+2026-02-19: Req 1.4 amended to match, in #137, its own PR. Status Implemented.

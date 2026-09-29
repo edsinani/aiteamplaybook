@@ -1,10 +1,10 @@
 # Measurement
 
-Start on day one, before anything else changes. The baseline is the point. Without it, the only evidence in six months will be how people feel, and the best randomized study to date found that experienced developers using AI felt 20 percent faster while measuring 19 percent slower (METR, July 2025). Do not put a speed number in a status report that did not come from this file.
+Start before anything else changes. The baseline is the point, and most of it can be backfilled: PR counts, sizes, merge times and review rounds for the last 8 to 12 weeks are already in the git host's history. Pull them on day one, before the playbook is installed. Without it, the only evidence in six months will be how people feel, and the best randomized study to date found that experienced developers using AI felt 20 percent faster while measuring 19 percent slower (METR, July 2025). Do not put a speed number in a status report that did not come from this file.
 
 ## What to record
 
-Five numbers, weekly, from the tracker and the git host. One row per week in `measurement-log.csv` (or the team's dashboard). Nothing here needs a new tool.
+Five numbers, weekly, from the tracker and the git host. One row per week in `docs/measurement-log.csv` (or the team's dashboard). Nothing here needs a new tool.
 
 | Metric | Source | Why |
 |---|---|---|
@@ -22,7 +22,7 @@ Cost per developer per day from the analytics page or the OpenTelemetry export. 
 
 ## What not to record
 
-Lines of code written. Accept rate of suggestions. Hours "saved" from self-report. None of these predicted delivery outcomes in any published study, and the first two reward the wrong thing.
+Lines of code written. Accept rate of suggestions. Hours "saved" from self-report. We know of no published study in which any of these predicted delivery outcomes, and the first two reward the wrong thing.
 
 ## When to look
 

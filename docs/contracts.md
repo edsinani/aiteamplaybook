@@ -39,6 +39,8 @@ If two of these are true, it is a contract and gets the treatment above:
 - Changing it needs a coordinated release.
 - The failure mode of a mismatch is silent (skipped, defaulted, empty) rather than loud (exception, 400).
 
+Within a contract, renaming, removing or retyping a field is a contract change. Adding an optional field that every consumer already ignores is not, which is why the worked example in `docs/specs/example-document-title/` adds a DTO field without a contract task. When unsure, treat it as a contract change.
+
 ## What the agent is told
 
-In `AGENTS.md`: "Before changing anything under `contracts/` or any DTO, queue message or field name that another service reads, stop and say so. Contract changes are their own task."
+In `AGENTS.md`: "Before changing anything under `contracts/`, or renaming, removing or retyping a field in a DTO, queue message or field name another service reads: stop and say so. Contract changes are their own task."

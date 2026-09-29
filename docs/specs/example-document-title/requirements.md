@@ -2,7 +2,7 @@
 
 Tracker: #128
 Author: Developer A
-Approved by: Lead, 2026-02-18
+Approved by: Lead, 2026-02-10
 Status: Implemented
 
 A worked example, generalized from a real feature. The original was a free-form user story; this is the same story in the template, with acceptance criteria rewritten in EARS form so tasks can cite them.
@@ -24,7 +24,7 @@ Documents show their uploaded filename, cleaned by stripping the extension and h
 1.1 WHEN a document finishes processing THE SYSTEM SHALL store a `displayTitle` on the document derived from extracted fields.
 1.2 WHEN the document type is Invoice THE SYSTEM SHALL derive the title as "Invoice <number>, <shipper>".
 1.3 WHEN the document type is Bill of Lading THE SYSTEM SHALL derive the title as "BOL <number>, <origin> to <destination>".
-1.4 WHEN the document type is unknown THE SYSTEM SHALL derive the title from the first heading or the most prominent text block.
+1.4 WHEN the document type is unknown THE SYSTEM SHALL derive the title from the first heading, or else the most prominent text block longer than 12 characters. (Amended 2026-02-19 in #137; see the design status log.)
 1.5 IF processing fails or no title can be derived THEN THE SYSTEM SHALL leave `displayTitle` empty.
 
 ### 2. Display
@@ -47,4 +47,4 @@ None. (Closed before approval: "Should the title include the date?" No. The list
 ## Priority and risk tier
 
 Priority: Medium. The cleaned filename is a workable interim.
-Risk tier: Low. Additive nullable field, no contract change, no auth or billing path.
+Risk tier: Standard. It ships a migration and changes list search, so it is not Low. Not High: the migration only adds a nullable column, and there is no contract, auth or billing path.
